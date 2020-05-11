@@ -20,6 +20,7 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/pinctrl/pins-imx8mq.h>
 #include <dt-bindings/thermal/thermal.h>
+#include "fsl-imx8mq-evk-cnss.dts"
 
 / {
 	compatible = "fsl,imx8mq";

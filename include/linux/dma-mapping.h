@@ -62,13 +62,17 @@
  * allocation failure reports (similarly to __GFP_NOWARN).
  */
 #define DMA_ATTR_NO_WARN	(1UL << 8)
+/*
+ * DMA_ATTR_SKIP_ZEROING: Do not zero mapping.
+ */
+#define DMA_ATTR_SKIP_ZEROING		(1UL << 9)
 
 /*
  * DMA_ATTR_PRIVILEGED: used to indicate that the buffer is fully
  * accessible at an elevated privilege level (and ideally inaccessible or
  * at least read-only at lesser-privileged levels).
  */
-#define DMA_ATTR_PRIVILEGED		(1UL << 9)
+#define DMA_ATTR_PRIVILEGED		(1UL << 10)
 
 /*
  * A dma_addr_t can hold any valid DMA or bus address for the platform.
@@ -128,6 +132,10 @@ struct dma_map_ops {
 				   enum dma_data_direction dir);
 	int (*mapping_error)(struct device *dev, dma_addr_t dma_addr);
 	int (*dma_supported)(struct device *dev, u64 mask);
+	void *(*remap)(struct device *dev, void *cpu_addr, dma_addr_t handle,
+			size_t size, unsigned long attrs);
+	void (*unremap)(struct device *dev, void *remapped_address,
+			size_t size);
 #ifdef ARCH_HAS_DMA_GET_REQUIRED_MASK
 	u64 (*get_required_mask)(struct device *dev);
 #endif
@@ -584,6 +592,35 @@ static inline int dma_set_mask(struct device *dev, u64 mask)
 	return 0;
 }
 #endif
+static inline void *dma_remap(struct device *dev, void *cpu_addr,
+		dma_addr_t dma_handle, size_t size, unsigned long attrs)
+{
+	const struct dma_map_ops *ops = get_dma_ops(dev);
+
+	if (!ops->remap) {
+		WARN_ONCE(1, "Remap function not implemented for %pS\n",
+				ops->remap);
+		return NULL;
+	}
+
+	return ops->remap(dev, cpu_addr, dma_handle, size, attrs);
+}
+
+
+static inline void dma_unremap(struct device *dev, void *remapped_addr,
+				size_t size)
+{
+	const struct dma_map_ops *ops = get_dma_ops(dev);
+
+	if (!ops->unremap) {
+		WARN_ONCE(1, "unremap function not implemented for %pS\n",
+				ops->unremap);
+		return;
+	}
+
+	return ops->unremap(dev, remapped_addr, size);
+}
+
 
 static inline u64 dma_get_mask(struct device *dev)
 {
