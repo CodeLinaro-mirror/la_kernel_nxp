@@ -23,6 +23,7 @@
 #include <dt-bindings/pinctrl/pads-imx8qxp.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/thermal/thermal.h>
+#include "fsl-imx8mq-evk-cnss.dts"
 
 / {
     model = "Freescale i.MX8DX";
