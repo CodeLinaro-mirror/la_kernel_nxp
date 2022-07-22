@@ -40,7 +40,9 @@
 		      <0x20000000 0x20000000 0x10000>,
 		      <0xa0000000 0xa0000000 0x10000000>,
 		      <0xb0000000 0xb0000000 0x10000>;
-
+		      
+		wlan-en-gpio = <&gpio5 10 GPIO_ACTIVE_HIGH>;
+		
 		chip_cfg@0 {
 			reg = <0x10000000 0x10000000>,
 			    <0x20000000 0x10000>;
@@ -183,6 +185,9 @@
 			mhi,ee = <0x3>, <0x4>;
 			mhi,ee-names = "SBL", "RDDM";
 			mhi,bhie-offset = <0x0324>;
+
+			pcie-disable-l1;
+			pcie-disable-l1ss;
 
 			mhi_channels {
 				#address-cells = <1>;
